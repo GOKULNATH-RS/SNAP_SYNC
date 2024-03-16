@@ -1,0 +1,19 @@
+{
+  "name": "mern_project_template",
+  "version": "1.0.0",
+  "description": "A Ready-to-use MERN Stack Project Template with Tailwind CSS",
+  "main": "index.js",
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "server": "cd server && nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mern",
+    "template",
+    "tailwindcss",
+    "ready-to-use"
+  ],
+  "author": "GOKULNATH RS",
+  "license": "ISC"
+}

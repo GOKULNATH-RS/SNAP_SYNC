@@ -1,0 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Poppins", sans-serif;
+  z-index: 1;
+}
+
+body {
+  background-color: #f5f5f5;
+  background-image: linear-gradient(0deg, #fafafa 0%, #e7fdff 100%);
+}
+
+@layer utilities {
+  .btn {
+    @apply p-2 px-4 border-[1px] h-10 rounded-xl flex items-center text-center;
+  }
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex items-center justify-between;
+  }
+  .h1-bold {
+    @apply text-[30px] font-bold leading-[42px] tracking-tighter;
+  }
+  .h2-bold {
+    @apply text-[24px] font-bold leading-[31.2px];
+  }
+  .h2-semibold {
+    @apply text-[24px] font-semibold leading-[31.2px];
+  }
+  .h3-bold {
+    @apply text-[20px] font-bold leading-[26px];
+  }
+  .h3-semibold {
+    @apply text-[20px] font-semibold leading-[24.8px];
+  }
+  .paragraph-regular {
+    @apply text-[16px] font-normal leading-[22.4px];
+  }
+  .paragraph-medium {
+    @apply text-[16px] font-medium leading-[22.4px];
+  }
+  .paragraph-semibold {
+    @apply text-[16px] font-semibold leading-[20.8px];
+  }
+  .body-regular {
+    @apply text-[14px] font-normal leading-[19.6px];
+  }
+  .body-medium {
+    @apply text-[14px] font-medium leading-[18.2px];
+  }
+  .body-semibold {
+    @apply text-[14px] font-semibold leading-[18.2px];
+  }
+  /* .gradient {
+    @apply bg-gradient-to-r from-violet-200 to-pink-200;
+  }
+
+  .bg-gradient {
+    @apply bg-gradient-to-r from-slate-900 to-slate-700;
+  } */
+}
