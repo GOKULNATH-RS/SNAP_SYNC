@@ -16,7 +16,7 @@ body {
 
 @layer utilities {
   .btn {
-    @apply p-2 px-4 border-[1px] h-10 rounded-xl flex items-center text-center;
+    @apply p-2 px-4 border-[1px] h-10 rounded-xl flex items-center text-center bg-[#fedb4b];
   }
   .flex-center {
     @apply flex items-center justify-center;

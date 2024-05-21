@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 const NavBar = () => {
   return (
     <header className="text-light-200 bg-dark-300 flex-between shadow-xl p-4 h-20">
-      <Link to={"/"}>Logo</Link>
+      <Link to={"/"} className="h2-bold">
+        <span className="text-[#ffd223]">Snap</span> Sync
+      </Link>
 
       {/* <nav>
         <a href="body-regular"></a>

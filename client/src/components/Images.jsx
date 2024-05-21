@@ -12,9 +12,9 @@ const Images = ({ download, array }) => {
   };
 
   return (
-    <div className="my-4 ml-10 p-3">
-      <h2 className=" h2-semibold text-center m-4">Your Images</h2>
-      <div className="flex flex-wrap gap-2">
+    <div className="my-4 ml-10 p-3 px-14">
+      <h2 className=" h2-semibold text-center m-4 pb-14">Your Images</h2>
+      <div className="flex flex-wrap gap-4">
         {list.map((item, i) => {
           const imgpath = `../../${item}`;
           return (

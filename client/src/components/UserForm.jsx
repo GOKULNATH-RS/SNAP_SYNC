@@ -1,13 +1,12 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import CaptureImage from "./CaptureImage";
 import UploadFile from "./UploadFile";
 
-const UserForm = () => {
+const UserForm = ({ setImages }) => {
   const [name, setName] = useState("");
   const [id, setId] = useState("");
-  const [image, setImage] = useState("");
 
   return (
     <div className="flex-center flex-col">
@@ -25,9 +24,9 @@ const UserForm = () => {
           onChange={(e) => setId(e.target.value)}
         />
       </div>
-      <UploadFile setImage={setImage} />
+      <UploadFile setImage={setImages} />
       <p className="body-regular">or</p>
-      <CaptureImage setImage={setImage} />
+      <CaptureImage setImage={setImages} />
     </div>
   );
 };

@@ -6,6 +6,7 @@ import Images from "./components/Images";
 
 const Home = () => {
   const [image, setImages] = useState([]);
+  const [fetchImg, setFetchImg] = useState("");
 
   useEffect(() => {
     fetch(`http://localhost:5000/fetchImages`, {
@@ -30,15 +31,16 @@ const Home = () => {
       .catch((error) => {
         console.error("There was a problem with the fetch operation:", error);
       });
-  }, []);
+  }, [image]);
 
   console.log(image?.images);
+
   return (
     <div>
       <h1 className="h1-bold m-4 text-center pt-10">
         Get Your Images Instantly
       </h1>
-      <UserForm />
+      <UserForm setImages={setImages} />
       <Images download array={image?.images} />
     </div>
   );

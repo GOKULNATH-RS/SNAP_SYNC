@@ -22,8 +22,8 @@ def detect_face(imgpath: str, dbpath: str) -> dict:
             img1_path=imgpath,
             img2_path=img2,
             enforce_detection=False,
-            model_name="Facenet",
-            distance_metric="euclidean",
+            model_name="ArcFace",
+            distance_metric="euclidean_l2",
         )
         if result["verified"]:
             # print("Matched", img2)

@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+
 /* eslint-disable no-unused-vars */
 const UploadFile = ({ setImage }) => {
   return (
@@ -13,8 +14,8 @@ const UploadFile = ({ setImage }) => {
         accept="image/*"
         onChange={(e) => {
           const file = e.target.files[0];
-
-          console.log(URL.createObjectURL(file));
+          setImage(URL.createObjectURL(file));
+          console.log("Uploaded Image ", URL.createObjectURL(file));
         }}
       />
     </div>
