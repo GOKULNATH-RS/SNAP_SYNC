@@ -1,33 +1,53 @@
-import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import Home from "./Home.jsx";
-import Register from "./components/Register.jsx";
-import Login from "./components/Login.jsx";
-import "./index.css";
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import GetMyPhotos from './GetMyPhotos.jsx'
+import Register from './components/Register.jsx'
+import Login from './components/Login.jsx'
+import AllEvents from './components/AllEvents.jsx'
+import UserRegister from './components/UserRegister.jsx'
+import EventPage from './components/EventPage.jsx'
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import './index.css'
+
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 const appRouter = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <App />,
     children: [
       {
-        path: "/",
-        element: <Home />,
+        path: '/',
+        element: <AllEvents />
       },
       {
-        path: "/register",
-        element: <Register />,
+        path: '/getmyphotos',
+        element: <GetMyPhotos />
       },
       {
-        path: "/login",
-        element: <Login />,
+        path: '/register',
+        element: <Register />
       },
-    ],
-  },
-]);
+      {
+        path: '/login',
+        element: <Login />
+      },
+      {
+        path: '/event/:id',
+        element: <EventPage />
+      },
+      {
+        path: '/allevent',
+        element: <AllEvents />
+      },
+      {
+        path: '/userregister',
+        element: <UserRegister />
+      }
+    ]
+  }
+])
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <RouterProvider router={appRouter} />
-);
+)

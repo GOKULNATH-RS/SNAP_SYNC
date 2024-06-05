@@ -19,7 +19,6 @@ const CaptureImage = ({ setImage }) => {
     setImage(imageSrc);
   }, [webcamRef]);
 
-  console.log(webcamRef);
   return (
     <div className="flex-center gap-2 flex-col">
       <div className="flex flex-gap p-4 gap-3">

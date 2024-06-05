@@ -1,43 +1,43 @@
 /* eslint-disable react/prop-types */
-import Image from "./Image";
-import { saveAs } from "file-saver";
+import Image from './Image'
+import { saveAs } from 'file-saver'
 
-import img from "../assets/img/Img-placeholder.png";
+import img from '../assets/img/Img-placeholder.png'
 const Images = ({ download, array }) => {
-  const list = array || [];
+  const list = array || []
 
   const handleDownload = (path) => {
-    console.log("Path", path);
-    saveAs(path, "image.jpg");
-  };
+    console.log('Path', path)
+    saveAs(path, 'image.jpg')
+  }
 
   return (
-    <div className="my-4 ml-10 p-3 px-14">
-      <h2 className=" h2-semibold text-center m-4 pb-14">Your Images</h2>
-      <div className="flex flex-wrap gap-4">
+    <div className='my-4 ml-10 p-3 px-14'>
+      <h2 className=' h2-semibold text-center m-4 pb-14'>Your Images</h2>
+      <div className='flex flex-wrap gap-4'>
         {list.map((item, i) => {
-          const imgpath = `../../${item}`;
+          // const imgpath = `../../${item}`
           return (
-            <div key={i} className="flex-center gap-1 flex-col">
-              {/* <Image url={imgpath} styles="h-50 w-50 rounded-xl" /> */}
+            <div key={i} className='flex-center gap-1 flex-col'>
+              {/* <Image url={item} styles='h-50 w-50 rounded-xl' /> */}
               <div
                 className={`h-50 w-50 rounded-xl bg-auto bg-[url(${
-                  imgpath || img
+                  item || img
                 })]`}
-                src={imgpath || img}
+                src={item || img}
               />
-              <p>{imgpath}</p>
+              <p>{item}</p>
               {download && (
-                <button className="btn" onClick={() => handleDownload(imgpath)}>
+                <button className='btn' onClick={() => handleDownload(item)}>
                   Download
                 </button>
               )}
             </div>
-          );
+          )
         })}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Images;
+export default Images

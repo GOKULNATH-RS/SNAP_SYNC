@@ -1,34 +1,42 @@
 /* eslint-disable no-unused-vars */
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react'
 
-import CaptureImage from "./CaptureImage";
-import UploadFile from "./UploadFile";
+import CaptureImage from './CaptureImage'
+import UploadFile from './UploadFile'
 
-const UserForm = ({ setImages }) => {
-  const [name, setName] = useState("");
-  const [id, setId] = useState("");
+// eslint-disable-next-line react/prop-types
+const UserForm = ({ setImages, setFormData }) => {
+  const [name, setName] = useState('')
+  const [id, setId] = useState('')
+
+  useEffect(() => {
+    setFormData({
+      name,
+      id
+    })
+  }, [name, id])
 
   return (
-    <div className="flex-center flex-col">
-      <div className="flex gap-4 p-4">
+    <div className='flex-center flex-col'>
+      <div className='flex gap-4 p-4'>
         <input
-          type="text"
-          placeholder="Enter your Name"
-          className="shadow-inner h-10 px-2 p-4 bg-white rounded-xl"
+          type='text'
+          placeholder='Enter your Name'
+          className='shadow-inner h-10 px-2 p-4 bg-white rounded-xl'
           onChange={(e) => setName(e.target.value)}
         />
         <input
-          type="text"
-          placeholder="Enter your Event Pass ID"
-          className="shadow-inner h-10 px-2 p-4 bg-white rounded-xl"
+          type='text'
+          placeholder='Enter your Event Pass ID'
+          className='shadow-inner h-10 px-2 p-4 bg-white rounded-xl'
           onChange={(e) => setId(e.target.value)}
         />
       </div>
       <UploadFile setImage={setImages} />
-      <p className="body-regular">or</p>
+      <p className='body-regular'>or</p>
       <CaptureImage setImage={setImages} />
     </div>
-  );
-};
+  )
+}
 
-export default UserForm;
+export default UserForm

@@ -1,57 +1,195 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-const { exec } = require("child_process");
+const express = require('express')
+const cors = require('cors')
+const bodyParser = require('body-parser')
+const { exec } = require('child_process')
+const mongoose = require('mongoose')
+const eventmodel = require('./Models/schema')
+const Event = require('./Models/schema')
+const User = require('./Models/user')
 
-const app = express();
+const app = express()
 
-app.use(bodyParser.json());
-app.use(cors());
+app.use(bodyParser.json())
+app.use(cors())
 
 const callPython = (path1, path2) => {
   return new Promise((resolve, reject) => {
-    exec(`python index.py ${path1} ${path2}`, (error, stdout, stderr) => {
+    console.log('Inside Promise with path1 ', path1, ' and path2 ', path2)
+    exec(`python index2.py ${path1} ${path2}`, (error, stdout, stderr) => {
       if (error) {
-        reject(error);
-        return;
+        console.log(error)
+        reject(error)
+        return
       }
       if (stderr) {
-        reject(new Error(stderr));
-        return;
+        console.log(stderr)
+        reject(new Error(stderr))
+        return
       }
-      console.log("StdOut : ", stdout);
-      resolve(stdout);
-    });
-  });
-};
+      console.log('StdOut : ', stdout)
+      resolve(stdout)
+    })
+  })
+}
 
-app.get("/", (req, res) => {
-  res.send("Images");
-});
-
-app.post("/uploadImage", (req, res) => {
-  const image = req.body.image;
-  console.log("Image ", image);
-  res.send("Image Uploaded Successfully");
-});
-
-app.delete("/deleteImage", (req, res) => {
-  const image = req.body.image;
-  console.log("Image ", image);
-  res.send("Image Deleted Successfully");
-});
-
-app.post("/fetchImages", async (req, res) => {
-  const path = req.body.Path;
+async function connecttodb() {
   try {
-    const imagePaths = await callPython(path, "../db");
-    console.log("Image Paths ", imagePaths);
-    res.status(200).send(imagePaths);
+    const url =
+      'mongodb+srv://1234:snapsync@cluster0.fyuumae.mongodb.net/SnapSync?retryWrites=true&w=majority&appName=Cluster0'
+    await mongoose.connect(url)
+    console.log('connected to database successfully')
+    const port = process.env.PORT || 5000
+    app.listen(port, function () {
+      console.log('server started at 5000....')
+    })
   } catch (error) {
-    res.status(500).send({ status: "error", message: error.message });
+    console.log('cannot connect to database')
+    console.log(error)
   }
-});
+}
+connecttodb()
 
-app.listen(5000, () => {
-  console.log("Server is running on port 5000");
-});
+app.get('/', (req, res) => {
+  res.send('Images')
+})
+
+app.post('/uploadImage', (req, res) => {
+  const image = req.body.image
+  console.log('Image ', image)
+  res.send('Image Uploaded Successfully')
+})
+
+app.delete('/deleteImage', (req, res) => {
+  const image = req.body.image
+  console.log('Image ', image)
+  res.send('Image Deleted Successfully')
+})
+
+app.post('/fetchImages', async (req, res) => {
+  console.log('Request Body ', req.body)
+  const userImage = req.body.userImage
+  const ImageFolder = req.body.imageList
+  try {
+    const result = await callPython(userImage, ImageFolder)
+    console.log('Result \n ', result)
+    const responseData = { status: 'success', images: result }
+    res.status(200).send(responseData)
+  } catch (error) {
+    res
+      .status(500)
+      .send({ status: 'error', message: 'came from here', error: error })
+  }
+})
+
+app.post('/create', async function (req, res) {
+  try {
+    const {
+      eventName,
+      eventDescription,
+      eventDate,
+      eventTime,
+      eventLocation,
+      eventOrganizer,
+      eventOrganizerPhone,
+      eventOrganizerEmail,
+      eventOrganizerWebsite,
+      eventOrganizerSocialMedia,
+      eventBanner,
+      eventLogo
+    } = req.body
+    console.log(eventName)
+    const newEvent = new Event({
+      eventName,
+      eventDescription,
+      eventDate,
+      eventTime,
+      eventLocation,
+      eventOrganizer,
+      eventOrganizerPhone,
+      eventOrganizerEmail,
+      eventOrganizerWebsite,
+      eventOrganizerSocialMedia,
+      eventBanner,
+      eventLogo
+    })
+    await newEvent.save()
+    console.log(newEvent)
+    res.status(200).send({
+      status: 'success',
+      message: 'Event created successfully',
+      newEvent
+    })
+  } catch (error) {
+    res.status(400).json({ status: 'failed', message: 'cannot create task' })
+    console.log(error)
+  }
+})
+
+app.get('/get', async function (req, res) {
+  try {
+    const events = await eventmodel.find()
+    res.status(200).send(events)
+  } catch (error) {
+    res.status(400).json({ status: 'failed', message: 'cannot get task' })
+    console.log(error)
+  }
+})
+
+app.get('/get/:id', async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id)
+    res.status(200).send(event)
+  } catch (error) {
+    res.status(400).json({ status: 'failed', message: 'cannot get event' })
+    console.log(error)
+  }
+})
+
+//Create-Account
+app.post('/signup', async (req, res) => {
+  const { username, email, password } = req.body
+  if (!username || !email || !password) {
+    return res.status(400).send({ message: 'All fields are required' })
+  }
+  User.findOne({ $or: [{ name: username }, { email: email }] })
+    .then((existingUser) => {
+      if (existingUser) {
+        if (existingUser.email === email) {
+          res.status(400).json({ message: 'Email already exists' })
+        } else {
+          res.status(400).json({ message: 'Username already exists' })
+        }
+      } else {
+        User.create({ username, email, password })
+          .then((user) => {
+            res
+              .status(201)
+              .json({ message: 'User created successfully', userId: user._id })
+          })
+          .catch((err) => res.status(500).json({ message: err.message }))
+      }
+    })
+    .catch((err) => res.status(500).json({ message: err.message }))
+})
+
+// login
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body
+  try {
+    const user = await User.findOne({ email, password })
+    if (user) {
+      res.status(200).json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        message: 'User logged in successfully'
+      })
+    } else {
+      res.status(401).json({
+        message: 'Incorrect username or password'
+      })
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
