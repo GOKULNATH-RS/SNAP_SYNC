@@ -1,10 +1,12 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 
 import UserForm from './components/UserForm'
 import Images from './components/Images'
 
 const GetMyPhotos = () => {
+  const { id } = useParams()
   const [image, setImages] = useState([])
   const [fetchImg, setFetchImg] = useState('')
   const [formData, setFormData] = useState({
@@ -28,8 +30,8 @@ const GetMyPhotos = () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        userImage: formData.name,
-        imageList: formData.id
+        userImage: image,
+        imageList: 'test1/'
       })
     })
       .then((response) => {

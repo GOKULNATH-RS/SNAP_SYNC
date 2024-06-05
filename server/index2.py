@@ -91,7 +91,7 @@ def detect_face(img: str, dbpath: str) -> dict:
         "images": images,
     }
     # print(json.dumps(x))
-    return "$".join(images)
+    return x
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ const AllEvents = () => {
           >
             <div className='relative'>
               <img
-                src={event.eventBanner || img}
+                src={event.eventLogo || img}
                 alt=''
                 className='w-[300px] h-[300px] rounded-xl'
               />

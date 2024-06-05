@@ -21,7 +21,7 @@ const appRouter = createBrowserRouter([
         element: <AllEvents />
       },
       {
-        path: '/getmyphotos',
+        path: '/getmyphotos/:id',
         element: <GetMyPhotos />
       },
       {

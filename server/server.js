@@ -95,7 +95,8 @@ app.post('/create', async function (req, res) {
       eventOrganizerWebsite,
       eventOrganizerSocialMedia,
       eventBanner,
-      eventLogo
+      eventLogo,
+      eventPhotos
     } = req.body
     console.log(eventName)
     const newEvent = new Event({
@@ -110,7 +111,8 @@ app.post('/create', async function (req, res) {
       eventOrganizerWebsite,
       eventOrganizerSocialMedia,
       eventBanner,
-      eventLogo
+      eventLogo,
+      eventPhotos
     })
     await newEvent.save()
     console.log(newEvent)
@@ -121,6 +123,18 @@ app.post('/create', async function (req, res) {
     })
   } catch (error) {
     res.status(400).json({ status: 'failed', message: 'cannot create task' })
+    console.log(error)
+  }
+})
+
+app.post('/uploadeventphotos', async function (req, res) {
+  try {
+    const { photos } = req.body
+    const { id } = req.params
+    const event = await Event.findByIdAndUpdate({ id }, { eventPhotos: photos })
+    res.status(200).send(event)
+  } catch (error) {
+    res.status(400).json({ status: 'failed', message: 'cannot upload photos' })
     console.log(error)
   }
 })

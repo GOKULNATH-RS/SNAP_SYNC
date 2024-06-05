@@ -2,21 +2,64 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Images from './Images'
 
+import { storage } from '../../firebase'
+import { ref, listAll, getDownloadURL, uploadBytes } from 'firebase/storage'
+
 const EventPage = () => {
   const { id } = useParams() // Make sure the URL has an id parameter
   const [eventData, setEventData] = useState({}) // Initialize as an object
+  const [showUpload, setShowUpload] = useState(false)
+  const [images, setImages] = useState([])
+  const [imageList, setImageList] = useState([])
 
   useEffect(() => {
     if (id) {
       fetch(`http://localhost:5000/get/${id}`)
         .then((res) => res.json())
         .then((data) => {
-          console.log(data)
           setEventData(data)
         })
         .catch((error) => console.log('Error fetching event data:', error))
     }
   }, [id]) // Add id as a dependency
+
+  const uploadFiles = async (e) => {
+    e.preventDefault()
+
+    let imageData = []
+    console.log('Started Uploading')
+
+    for (let i = 0; i < images.length; ++i) {
+      const imageName = `events/${images[i].name}`
+      console.log(images[i].name)
+      const imageRef = ref(storage, imageName)
+      const result = await uploadBytes(imageRef, images[i]).then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((url) => {
+          let imgIndex = { imageName: imageName, imageUrl: url }
+          imageData[i] = url
+        })
+      })
+    }
+
+    // fetch(`http://localhost:5000/upload/${id}`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify({ images: imageData })
+    // })
+    //   .then((res) => res.json())
+    //   .then((data) => {
+    //     console.log('Success:', data)
+    //   })
+    //   .catch((error) => {
+    //     console.log('Error:', error)
+    //   }
+    // )
+
+    setImageList(imageData)
+    console.log('Image data', imageList)
+  }
 
   return (
     <div>
@@ -47,11 +90,36 @@ const EventPage = () => {
         </div>
       </div>
       <div>
-        <button className='btn mx-6 mt-10'>Upload More Photos</button>
-        <Link to={'/getmyphotos'} className='btn mx-6 mt-10 w-max'>
+        {/* <button
+          className='btn mx-6 mt-10'
+          onClick={setShowUpload((prev) => !prev)}
+        >
+          Upload Event Photos
+        </button> */}
+
+        <form className='flex flex-col gap-3 ml-10'>
+          <label className='flex flex-col pl-4 h3-semibold'>
+            Upload Event Photos
+          </label>
+          <input
+            type='file'
+            multiple
+            onChange={(event) => {
+              setImages(event.target.files)
+            }}
+          />
+          <button
+            className='btn mx-6 mt-10 w-max'
+            onClick={(e) => uploadFiles(e)}
+          >
+            Upload Photos
+          </button>
+        </form>
+
+        <Link to={`/getmyphotos/${id}`} className='btn mx-6 mt-10 w-max'>
           Get My Photos Photos
         </Link>
-        <Images />
+        <Images images={imageList} />
       </div>
     </div>
   )
