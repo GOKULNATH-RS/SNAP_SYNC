@@ -13,6 +13,7 @@ const GetMyPhotos = () => {
     name: '',
     id: ''
   })
+  const [matchUrl, setMatchUrl] = useState('')
 
   // useEffect(() => {
   //   const data =
@@ -23,6 +24,7 @@ const GetMyPhotos = () => {
   // }, [])
 
   const handleVerify = () => {
+    console.log('From GetMyPhotos ', image)
     console.log('Handle Verify Called')
     fetch(`http://localhost:5000/fetchImages`, {
       method: 'POST',
@@ -31,7 +33,7 @@ const GetMyPhotos = () => {
       },
       body: JSON.stringify({
         userImage: image,
-        imageList: 'test1/'
+        imageList: `${id}/`
       })
     })
       .then((response) => {
@@ -40,27 +42,49 @@ const GetMyPhotos = () => {
       .then((data) => {
         const imgData = data.images.slice(0, data.images.length - 2).split('$')
         setImages(imgData)
-        console.log('Image ', imgData)
+        console.log('Data', imgData)
+        getImageUrls(imgData)
       })
       .catch((error) => {
         console.error('There was a problem with the fetch operation:', error)
       })
   }
 
+  function getImageUrls(imgNames) {
+    fetch(`http://localhost:5000/get/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        let matchingUrls = []
+
+        console.log('EventPhotos ', data.eventPhotos)
+        for (let img in imgNames) {
+          for (let i = 0; i < data.eventPhotos.length; i++) {
+            console.log('Image ', imgNames[img])
+            console.log('Data ', data.eventPhotos[i].imageName)
+            if (imgNames[img] === data.eventPhotos[i].imageName) {
+              console.log('Matched')
+              console.log(imgNames[img], data.eventPhotos[i].imageName)
+              matchingUrls.push(data.eventPhotos[i].imageUrl)
+            }
+          }
+        }
+        console.log(matchingUrls)
+        setMatchUrl(matchingUrls)
+      })
+      .catch((error) => console.log('Error fetching event data:', error))
+  }
+
   return (
-    <div>
+    <div className='w-full flex flex-col items-center'>
       <h1 className='h1-bold m-4 text-center pt-10'>
         Get Your Images Instantly
       </h1>
       <UserForm setImages={setImages} setFormData={setFormData} />
-      <Images download array={image} />
 
-      <button
-        className='bg-dark-200 h-10 text-white rounded-xl p-4 m-4'
-        onClick={handleVerify}
-      >
-        Verify
+      <button className='btn  mt-8' onClick={handleVerify}>
+        Find My Photos
       </button>
+      <Images download array={matchUrl} />
     </div>
   )
 }

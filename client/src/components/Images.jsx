@@ -2,17 +2,16 @@
 import Image from './Image'
 import { saveAs } from 'file-saver'
 
-import img from '../assets/img/Img-placeholder.png'
 import { useEffect, useState } from 'react'
 const Images = (props) => {
   const [list, setList] = useState([])
 
   useEffect(() => {
+    console.log(props)
     setList(props.array || props.images || [])
-  }, [props.array, props.images])
+  }, [props])
 
   const handleDownload = (path) => {
-    console.log('Path', path)
     saveAs(path, 'image.jpg')
   }
 
@@ -24,13 +23,6 @@ const Images = (props) => {
           return (
             <div key={i} className='flex-center gap-1 flex-col'>
               <Image url={item} styles='h-72  rounded-xl' />
-              {/* <div
-                className={`h-50 w-50 rounded-xl bg-auto bg-[url(${
-                  item || img
-                })]`}
-                src={item || img}
-              /> */}
-              {/* <p>{item}</p> */}
               {props.download && (
                 <button className='btn' onClick={() => handleDownload(item)}>
                   Download

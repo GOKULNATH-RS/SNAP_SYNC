@@ -3,14 +3,15 @@ import { Link, useParams } from 'react-router-dom'
 import Images from './Images'
 
 import { storage } from '../../firebase'
-import { ref, listAll, getDownloadURL, uploadBytes } from 'firebase/storage'
+import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
 
 const EventPage = () => {
   const { id } = useParams() // Make sure the URL has an id parameter
   const [eventData, setEventData] = useState({}) // Initialize as an object
   const [showUpload, setShowUpload] = useState(false)
   const [images, setImages] = useState([])
-  const [imageList, setImageList] = useState([])
+  const [imgWebUrl, setImgWebUrl] = useState('')
+  const [photos, setPhotos] = useState([])
 
   useEffect(() => {
     if (id) {
@@ -18,47 +19,74 @@ const EventPage = () => {
         .then((res) => res.json())
         .then((data) => {
           setEventData(data)
+
+          const eventPhotos = data.eventPhotos
+          console.log('eventData Photos', eventPhotos)
+          eventPhotos.forEach((photo) => {
+            console.log(photo)
+            setPhotos((prev) => [...prev, photo.imageUrl])
+          })
+          console.log('photos', photos)
         })
         .catch((error) => console.log('Error fetching event data:', error))
     }
   }, [id]) // Add id as a dependency
 
+  function add(listImgs, imageName, url) {
+    return new Promise((resolve) => {
+      listImgs.push({ imageName: imageName, imageUrl: url })
+      resolve(listImgs)
+    })
+  }
+
   const uploadFiles = async (e) => {
     e.preventDefault()
 
-    let imageData = []
     console.log('Started Uploading')
+    console.log(images)
 
-    for (let i = 0; i < images.length; ++i) {
-      const imageName = `events/${images[i].name}`
-      console.log(images[i].name)
-      const imageRef = ref(storage, imageName)
-      const result = await uploadBytes(imageRef, images[i]).then((snapshot) => {
-        getDownloadURL(snapshot.ref).then((url) => {
-          let imgIndex = { imageName: imageName, imageUrl: url }
-          imageData[i] = url
+    let listImgs = []
+
+    new Promise((resolve) => {
+      for (let i = 0; i < images.length; i++) {
+        const imageName = `${eventData._id}/${images[i].name}`
+
+        const imageRef = ref(storage, imageName)
+        uploadBytes(imageRef, images[i]).then((snapshot) => {
+          getDownloadURL(snapshot.ref).then(async (url) => {
+            add(listImgs, imageName, url).then(() => {
+              console.log('Uploaded Length ', listImgs.length)
+              if (images.length === listImgs.length) {
+                console.log('Resolved')
+                resolve(listImgs)
+              }
+            })
+          })
         })
+      }
+    }).then((data) => {
+      updateToDB(data)
+    })
+  }
+
+  function updateToDB(imagesForDB) {
+    console.log('Images List for Server', imagesForDB)
+    fetch(`http://localhost:5000/uploadeventphotos/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ images: imagesForDB })
+    })
+      .then((res) => {
+        res.json()
       })
-    }
-
-    // fetch(`http://localhost:5000/upload/${id}`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify({ images: imageData })
-    // })
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     console.log('Success:', data)
-    //   })
-    //   .catch((error) => {
-    //     console.log('Error:', error)
-    //   }
-    // )
-
-    setImageList(imageData)
-    console.log('Image data', imageList)
+      .then((data) => {
+        console.log('Success:', data)
+      })
+      .catch((error) => {
+        console.log('Error:', error)
+      })
   }
 
   return (
@@ -90,13 +118,6 @@ const EventPage = () => {
         </div>
       </div>
       <div>
-        {/* <button
-          className='btn mx-6 mt-10'
-          onClick={setShowUpload((prev) => !prev)}
-        >
-          Upload Event Photos
-        </button> */}
-
         <form className='flex flex-col gap-3 ml-10'>
           <label className='flex flex-col pl-4 h3-semibold'>
             Upload Event Photos
@@ -119,7 +140,7 @@ const EventPage = () => {
         <Link to={`/getmyphotos/${id}`} className='btn mx-6 mt-10 w-max'>
           Get My Photos Photos
         </Link>
-        <Images images={imageList} />
+        <Images images={photos} />
       </div>
     </div>
   )

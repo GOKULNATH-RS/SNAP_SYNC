@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import UploadFile from './UploadFile'
+import { useEffect, useState } from 'react'
+import { storage } from '../../firebase'
+import { ref, listAll, getDownloadURL, uploadBytes } from 'firebase/storage'
+import { v4 } from 'uuid'
+import { useNavigate } from 'react-router-dom'
 
 const Register = () => {
   const initialFormState = {
@@ -17,7 +20,8 @@ const Register = () => {
     eventBanner: '',
     eventPhotos: []
   }
-
+  const [logoUpload, setLogoUpload] = useState(null)
+  const [bannerUpload, setBannerUpload] = useState(null)
   const [formData, setFormData] = useState(initialFormState)
 
   const handleChange = (e) => {
@@ -28,19 +32,45 @@ const Register = () => {
     })
   }
 
-  const handleRegister = () => {
+  const navigate = useNavigate()
+  function handleUploadImage(imgUpload) {
+    return new Promise((resolve, reject) => {
+      if (imgUpload === null) return
+      let uploadRef = `checkImg/${imgUpload.name + v4()}`
+      const ImageRef = ref(storage, uploadRef)
+
+      uploadBytes(ImageRef, imgUpload).then((snapshot) => {
+        getDownloadURL(snapshot.ref).then((url) => {
+          resolve(url)
+        })
+      })
+    })
+  }
+
+  const handleRegister = async () => {
+    console.log(logoUpload, bannerUpload)
+
+    const logoDB = await handleUploadImage(logoUpload)
+    const bannerDB = await handleUploadImage(bannerUpload)
+
+    console.log(logoDB, bannerDB)
+
     fetch('http://localhost:5000/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify({
+        formData,
+        logo: logoDB,
+        banner: bannerDB
+      })
     })
       .then((res) => res.json())
       .then((data) => {
         console.log('Success:', data)
-
         setFormData(initialFormState)
+        navigate('/')
       })
       .catch((error) => {
         console.log('Error:', error)
@@ -143,18 +173,18 @@ const Register = () => {
           <label className='flex flex-col pl-4 h3-semibold'>
             Upload Event Logo
           </label>
-          <UploadFile
-            setImage={(image) => setFormData({ ...formData, eventLogo: image })}
+          <input
+            type='file'
+            onChange={(e) => setLogoUpload(e.target.files[0])}
           />
         </div>
         <div className='flex flex-col gap-3'>
           <label className='flex flex-col pl-4 h3-semibold'>
             Upload Event Banner
           </label>
-          <UploadFile
-            setImage={(image) =>
-              setFormData({ ...formData, eventBanner: image })
-            }
+          <input
+            type='file'
+            onChange={(e) => setBannerUpload(e.target.files[0])}
           />
         </div>
       </form>

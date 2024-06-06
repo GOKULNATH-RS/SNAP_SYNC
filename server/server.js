@@ -56,7 +56,11 @@ app.get('/', (req, res) => {
 app.post('/uploadImage', (req, res) => {
   const image = req.body.image
   console.log('Image ', image)
-  res.send('Image Uploaded Successfully')
+  if (!image) {
+    res.status(400).send('Image not found')
+  } else {
+    res.send('Image Uploaded Successfully')
+  }
 })
 
 app.delete('/deleteImage', (req, res) => {
@@ -97,8 +101,8 @@ app.post('/create', async function (req, res) {
       eventBanner,
       eventLogo,
       eventPhotos
-    } = req.body
-    console.log(eventName)
+    } = req.body.formData
+
     const newEvent = new Event({
       eventName,
       eventDescription,
@@ -112,10 +116,11 @@ app.post('/create', async function (req, res) {
       eventOrganizerSocialMedia,
       eventBanner,
       eventLogo,
-      eventPhotos
+      eventPhotos,
+      eventLogo: req.body.logo,
+      eventBanner: req.body.banner
     })
     await newEvent.save()
-    console.log(newEvent)
     res.status(200).send({
       status: 'success',
       message: 'Event created successfully',
@@ -127,12 +132,17 @@ app.post('/create', async function (req, res) {
   }
 })
 
-app.post('/uploadeventphotos', async function (req, res) {
+app.post('/uploadeventphotos/:id', async function (req, res) {
   try {
-    const { photos } = req.body
+    const { images } = req.body
     const { id } = req.params
-    const event = await Event.findByIdAndUpdate({ id }, { eventPhotos: photos })
-    res.status(200).send(event)
+    const event = await Event.findByIdAndUpdate(
+      { _id: id },
+      { eventPhotos: images }
+    )
+    res
+      .status(200)
+      .send({ status: 'success', message: 'Photos uploaded successfully' })
   } catch (error) {
     res.status(400).json({ status: 'failed', message: 'cannot upload photos' })
     console.log(error)

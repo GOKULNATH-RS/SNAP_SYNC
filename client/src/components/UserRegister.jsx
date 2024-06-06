@@ -36,7 +36,7 @@ const Login = () => {
         } else if (result.data.message === 'User created successfully') {
           sessionStorage.setItem('userId', result.data.userId)
           console.log(result.data)
-          navigate('/allevent')
+          navigate('/')
         }
       })
       .catch((error) => {
