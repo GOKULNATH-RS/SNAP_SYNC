@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { storage } from '../../firebase'
-import { ref, listAll, getDownloadURL, uploadBytes } from 'firebase/storage'
+import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
 import { v4 } from 'uuid'
 import { useNavigate } from 'react-router-dom'
 
@@ -34,7 +34,7 @@ const Register = () => {
 
   const navigate = useNavigate()
   function handleUploadImage(imgUpload) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (imgUpload === null) return
       let uploadRef = `checkImg/${imgUpload.name + v4()}`
       const ImageRef = ref(storage, uploadRef)

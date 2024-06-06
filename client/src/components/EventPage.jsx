@@ -8,9 +8,7 @@ import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
 const EventPage = () => {
   const { id } = useParams() // Make sure the URL has an id parameter
   const [eventData, setEventData] = useState({}) // Initialize as an object
-  const [showUpload, setShowUpload] = useState(false)
   const [images, setImages] = useState([])
-  const [imgWebUrl, setImgWebUrl] = useState('')
   const [photos, setPhotos] = useState([])
 
   useEffect(() => {
@@ -21,12 +19,9 @@ const EventPage = () => {
           setEventData(data)
 
           const eventPhotos = data.eventPhotos
-          console.log('eventData Photos', eventPhotos)
           eventPhotos.forEach((photo) => {
-            console.log(photo)
             setPhotos((prev) => [...prev, photo.imageUrl])
           })
-          console.log('photos', photos)
         })
         .catch((error) => console.log('Error fetching event data:', error))
     }
@@ -49,7 +44,8 @@ const EventPage = () => {
 
     new Promise((resolve) => {
       for (let i = 0; i < images.length; i++) {
-        const imageName = `${eventData._id}/${images[i].name}`
+        const imageNameNotClean = `${eventData._id}/${images[i].name}`
+        const imageName = imageNameNotClean.replace(/\s/g, '')
 
         const imageRef = ref(storage, imageName)
         uploadBytes(imageRef, images[i]).then((snapshot) => {
@@ -118,29 +114,29 @@ const EventPage = () => {
         </div>
       </div>
       <div>
-        <form className='flex flex-col gap-3 ml-10'>
-          <label className='flex flex-col pl-4 h3-semibold'>
+        <form className='flex flex-col gap-3 mx-4'>
+          <label className='flex flex-col h3-semibold'>
             Upload Event Photos
           </label>
-          <input
-            type='file'
-            multiple
-            onChange={(event) => {
-              setImages(event.target.files)
-            }}
-          />
-          <button
-            className='btn mx-6 mt-10 w-max'
-            onClick={(e) => uploadFiles(e)}
-          >
-            Upload Photos
-          </button>
+          <div className=' flex gap-0 items-center'>
+            <input
+              type='file'
+              multiple
+              onChange={(event) => {
+                setImages(event.target.files)
+              }}
+            />
+
+            <button className='btn w-max' onClick={(e) => uploadFiles(e)}>
+              Upload Photos
+            </button>
+          </div>
         </form>
 
         <Link to={`/getmyphotos/${id}`} className='btn mx-6 mt-10 w-max'>
-          Get My Photos Photos
+          Get My Photos
         </Link>
-        <Images images={photos} />
+        <Images images={photos} title={'Event Photos'} />
       </div>
     </div>
   )

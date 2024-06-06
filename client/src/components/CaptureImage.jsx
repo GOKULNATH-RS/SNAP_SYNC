@@ -5,7 +5,7 @@ import img from '../assets/img/Img-placeholder.png'
 import { v4 } from 'uuid'
 import { storage } from '../../firebase'
 
-import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
+import { ref, getDownloadURL, uploadString } from 'firebase/storage'
 
 const videoConstraints = {
   width: 1280 / 3,
@@ -20,18 +20,19 @@ const CaptureImage = ({ setImage }) => {
     const imageSrc = webcamRef.current.getScreenshot()
     console.log('Captured Image ', imageSrc)
     setImgSrc(imageSrc)
-    handleUpload()
+    handleUpload(imageSrc)
   }, [webcamRef])
 
-  const handleUpload = () => {
-    console.log('Uploading image', imgSrc)
-    if (imgSrc === null) return
+  const handleUpload = (imageBase64) => {
+    console.log('Uploading image', imageBase64)
+    if (imageBase64 === null) return
     let uploadRef = `checkImg/${v4()}`
     const ImageRef = ref(storage, uploadRef)
 
-    uploadBytes(ImageRef, imgSrc).then((snapshot) => {
+    uploadString(ImageRef, imageBase64, 'data_url').then((snapshot) => {
       console.log('Uploaded a blob or file!', snapshot)
-      getDownloadURL(snapshot.ref).then(() => {
+      getDownloadURL(snapshot.ref).then((url) => {
+        console.log('URL ', url)
         setImage(uploadRef)
         console.log('From capture', uploadRef)
       })

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { storage } from '../../firebase'
 import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
 import { v4 } from 'uuid'
@@ -16,7 +16,8 @@ const UploadFile = ({ setImage }) => {
   const handleUpload = () => {
     console.log('Uploading image', imgUpload)
     if (imgUpload === null) return
-    let uploadRef = `checkImg/${imgUpload.name + v4()}`
+    let uploadRefNotClean = `checkImg/${imgUpload.name + v4()}`
+    const uploadRef = uploadRefNotClean.replace(/\s/g, '')
     console.log('Uploading image', imgUpload.name)
     const ImageRef = ref(storage, uploadRef)
 

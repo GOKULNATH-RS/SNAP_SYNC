@@ -7,7 +7,6 @@ const Images = (props) => {
   const [list, setList] = useState([])
 
   useEffect(() => {
-    console.log(props)
     setList(props.array || props.images || [])
   }, [props])
 
@@ -17,7 +16,9 @@ const Images = (props) => {
 
   return (
     <div className='my-4 ml-10 p-3 px-14'>
-      <h2 className=' h2-semibold text-center m-4 pb-14'>Your Images</h2>
+      <h2 className=' h2-semibold text-center m-4 pb-14'>
+        {props.title || 'Your Images'}
+      </h2>
       <div className='flex flex-wrap gap-4'>
         {list.map((item, i) => {
           return (
