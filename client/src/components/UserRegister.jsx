@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
-const Login = () => {
+const UserRegister = () => {
   const [email, SetEmail] = useState('')
   const [username, SetUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -11,48 +13,67 @@ const Login = () => {
 
   const formFields = [
     { label: 'Username', name: 'Username', setValue: SetUsername },
-    { label: 'Email', email: 'Email', setValue: SetEmail },
+    { label: 'Email', name: 'Email', setValue: SetEmail },
     { label: 'Password', name: 'password', setValue: setPassword }
   ]
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
+    console.log('button clicked')
     e.preventDefault()
-    console.log(username)
-    console.log(email)
-    console.log(password)
+
     if (!username || !email || !password) {
-      alert('Please fill all the fields.')
+      toast.warning('Please fill all the details!', {
+        position: 'top-center',
+        autoClose: 2000,
+        closeOnClick: true,
+        draggable: true
+      })
       return
     }
+    try {
+      const response = await axios.post('http://localhost:5000/signup', {
+        username,
+        email,
+        password
+      })
 
-    axios
-      .post('http://localhost:5000/signup', { username, email, password })
-      .then((result) => {
-        console.log(result)
-        if (result.data.message === 'Email already exists') {
-          window.alert('Email already exists. Please use another email.')
-        } else if (result.data.message === 'Username already exists') {
-          window.alert('Username already exists. Please use another username.')
-        } else if (result.data.message === 'User created successfully') {
-          sessionStorage.setItem('userId', result.data.userId)
-          console.log(result.data)
-          navigate('/')
-        }
+      const result = response.data
+      console.log(response.data.message)
+      console.log(result.message)
+      if (result.message === 'Email already exists') {
+        toast.error('Email already exists!', {
+          position: 'top-center',
+          autoClose: 2000,
+          closeOnClick: true,
+          draggable: true
+        })
+      } else if (result.message === 'Username already exists') {
+        toast.error('Email already exists!', {
+          position: 'top-center',
+          autoClose: 2000,
+          closeOnClick: true,
+          draggable: true
+        })
+      } else if (result.message === 'User created successfully') {
+        toast.success('User Created', {
+          position: 'top-scenter',
+          autoClose: 2000,
+          closeOnClick: true,
+          draggable: true
+        })
+        sessionStorage.setItem('userId', result.userId)
+        navigate('/register')
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(error.message, {
+        position: 'top-center',
+        autoClose: 2000,
+        closeOnClick: true,
+        draggable: true
       })
-      .catch((error) => {
-        console.error(error)
-        if (
-          error.response &&
-          error.response.data &&
-          error.response.data.message
-        ) {
-          window.alert(error.response.data.message)
-        } else {
-          window.alert('Something went wrong. Please try again later.')
-        }
-      })
+    }
   }
-
   return (
     <div className='min-h-screen m-10 p-4 flex items-center flex-col gap-4'>
       <h1 className='h2-semibold my-4 text-center'>Register As Organizer</h1>
@@ -84,8 +105,9 @@ const Login = () => {
       >
         Register
       </button>
+      <ToastContainer />
     </div>
   )
 }
 
-export default Login
+export default UserRegister

@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom'
 
 import UserForm from './components/UserForm'
 import Images from './components/Images'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const GetMyPhotos = () => {
   const { id } = useParams()
@@ -14,6 +16,7 @@ const GetMyPhotos = () => {
     id: ''
   })
   const [matchUrl, setMatchUrl] = useState('')
+  const [closeUpdateToast, setCloseUpdateToast] = useState(false)
 
   // useEffect(() => {
   //   const data =
@@ -26,6 +29,33 @@ const GetMyPhotos = () => {
   const handleVerify = () => {
     console.log('From GetMyPhotos ', image)
     console.log('Handle Verify Called')
+
+    const msgs = [
+      'Matching in Progress, Please wait...',
+      'Almost there, Please wait a bit longer...',
+      'Just a few more seconds...',
+      'Almost done...'
+    ]
+    let i = 0
+
+    const toaster = toast.loading(msgs[i], {
+      position: 'top-right',
+      autoClose: 2000,
+      closeOnClick: true,
+      draggable: true
+    })
+
+    setInterval(() => {
+      i = (i + 1) % msgs.length
+      toast.update(toaster, {
+        render: msgs[i],
+        type: 'info',
+        isLoading: true,
+        draggable: true
+      })
+    }, 5000)
+
+    console.log('comes here')
     fetch(`http://localhost:5000/fetchImages`, {
       method: 'POST',
       headers: {
@@ -42,11 +72,26 @@ const GetMyPhotos = () => {
       .then((data) => {
         const imgData = data.images.slice(0, data.images.length - 2).split('$')
         setImages(imgData)
+        clearInterval()
         console.log('Data', imgData)
         getImageUrls(imgData)
+        toast.update(toaster, {
+          render: 'Images Found!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 2000,
+          closeOnClick: true,
+          draggable: true
+        })
       })
       .catch((error) => {
         console.error('There was a problem with the fetch operation:', error)
+        toast.error('Error Occurred', {
+          position: 'top-center',
+          autoClose: 2000,
+          closeOnClick: true,
+          draggable: true
+        })
       })
   }
 
@@ -79,11 +124,16 @@ const GetMyPhotos = () => {
       <h1 className='h1-bold m-4 text-center pt-10'>
         Get Your Images Instantly
       </h1>
-      <UserForm setImages={setImages} setFormData={setFormData} />
+      <UserForm
+        setImages={setImages}
+        position={'top-right'}
+        setFormData={setFormData}
+      />
 
       <button className='btn  mt-8' onClick={handleVerify}>
         Find My Photos
       </button>
+      <ToastContainer />
       <Images download array={matchUrl} />
     </div>
   )

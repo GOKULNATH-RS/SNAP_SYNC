@@ -5,7 +5,7 @@ import CaptureImage from './CaptureImage'
 import UploadFile from './UploadFile'
 
 // eslint-disable-next-line react/prop-types
-const UserForm = ({ setImages, setFormData }) => {
+const UserForm = ({ setImages, setFormData, position }) => {
   const [name, setName] = useState('')
   const [id, setId] = useState('')
 
@@ -32,7 +32,7 @@ const UserForm = ({ setImages, setFormData }) => {
           onChange={(e) => setId(e.target.value)}
         />
       </div>
-      <UploadFile setImage={setImages} />
+      <UploadFile setImage={setImages} position={position} />
       <p className='body-regular'>or</p>
       <CaptureImage setImage={setImages} />
     </div>

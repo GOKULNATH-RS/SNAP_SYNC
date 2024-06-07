@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Images from './Images'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { storage } from '../../firebase'
 import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
 
 const EventPage = () => {
-  const { id } = useParams() // Make sure the URL has an id parameter
-  const [eventData, setEventData] = useState({}) // Initialize as an object
+  const { id } = useParams()
+  const [eventData, setEventData] = useState({})
   const [images, setImages] = useState([])
   const [photos, setPhotos] = useState([])
 
@@ -25,8 +27,7 @@ const EventPage = () => {
         })
         .catch((error) => console.log('Error fetching event data:', error))
     }
-  }, [id]) // Add id as a dependency
-
+  }, [id])
   function add(listImgs, imageName, url) {
     return new Promise((resolve) => {
       listImgs.push({ imageName: imageName, imageUrl: url })
@@ -37,8 +38,21 @@ const EventPage = () => {
   const uploadFiles = async (e) => {
     e.preventDefault()
 
+    if (images.length === 0)
+      return toast.error('Please select images to upload', {
+        position: 'top-center',
+        autoClose: 2000,
+        closeOnClick: true,
+        draggable: true
+      })
+
     console.log('Started Uploading')
     console.log(images)
+    const uploadToastId = toast.loading(`Uploading ${images.length} Photos`, {
+      position: 'top-center',
+      closeOnClick: true,
+      draggable: true
+    })
 
     let listImgs = []
 
@@ -61,6 +75,14 @@ const EventPage = () => {
         })
       }
     }).then((data) => {
+      toast.update(uploadToastId, {
+        toastId: 'upload-file-toast',
+        render: 'Image uploaded successfully!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 2000,
+        draggable: true
+      })
       updateToDB(data)
     })
   }
@@ -129,6 +151,7 @@ const EventPage = () => {
 
             <button className='btn w-max' onClick={(e) => uploadFiles(e)}>
               Upload Photos
+              <ToastContainer />
             </button>
           </div>
         </form>

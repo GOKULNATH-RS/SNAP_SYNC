@@ -3,6 +3,8 @@ import { storage } from '../../firebase'
 import { ref, getDownloadURL, uploadBytes } from 'firebase/storage'
 import { v4 } from 'uuid'
 import { useNavigate } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Register = () => {
   const initialFormState = {
@@ -47,34 +49,68 @@ const Register = () => {
     })
   }
 
-  const handleRegister = async () => {
+  const handleRegister = async (e) => {
     console.log(logoUpload, bannerUpload)
-
-    const logoDB = await handleUploadImage(logoUpload)
-    const bannerDB = await handleUploadImage(bannerUpload)
-
-    console.log(logoDB, bannerDB)
-
-    fetch('http://localhost:5000/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        formData,
-        logo: logoDB,
-        banner: bannerDB
+    e.preventDefault()
+    if (
+      !formData.eventName ||
+      !formData.eventDescription ||
+      !formData.eventDate ||
+      !formData.eventTime ||
+      !formData.eventLocation ||
+      !formData.eventOrganizer ||
+      !formData.eventOrganizerPhone ||
+      !formData.eventOrganizerEmail ||
+      !formData.eventOrganizerWebsite ||
+      !formData.eventOrganizerSocialMedia ||
+      !logoUpload ||
+      !bannerUpload
+    ) {
+      toast.warning('Please fill all the details!', {
+        position: 'top-center',
+        autoClose: 2000,
+        closeOnClick: true,
+        draggable: true
       })
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log('Success:', data)
-        setFormData(initialFormState)
-        navigate('/')
+
+      const logoDB = await handleUploadImage(logoUpload)
+      const bannerDB = await handleUploadImage(bannerUpload)
+
+      console.log(logoDB, bannerDB)
+
+      fetch('http://localhost:5000/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          formData,
+          logo: logoDB,
+          banner: bannerDB
+        })
       })
-      .catch((error) => {
-        console.log('Error:', error)
-      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log('Success:', data)
+          toast.success('Event Registered Successfully', {
+            position: 'top-center',
+            autoClose: 2000,
+            closeOnClick: true,
+            draggable: true
+          })
+          setFormData(initialFormState)
+          navigate('/')
+        })
+        .catch((error) => {
+          console.log('Error:', error)
+          toast.error('Error Occurred', {
+            position: 'top-center',
+            autoClose: 2000,
+            closeOnClick: true,
+            draggable: true
+          })
+        })
+    }
   }
 
   const formFields = [
@@ -195,6 +231,7 @@ const Register = () => {
       >
         Register Event
       </button>
+      <ToastContainer />
     </div>
   )
 }
