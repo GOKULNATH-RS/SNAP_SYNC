@@ -118,7 +118,8 @@ app.post('/create', async function (req, res) {
       eventLogo,
       eventPhotos,
       eventLogo: req.body.logo,
-      eventBanner: req.body.banner
+      eventBanner: req.body.banner,
+      userId: req.body.userId
     })
     await newEvent.save()
     res.status(200).send({
@@ -138,7 +139,8 @@ app.post('/uploadeventphotos/:id', async function (req, res) {
     const { id } = req.params
     const event = await Event.findByIdAndUpdate(
       { _id: id },
-      { eventPhotos: images }
+      { $push: { eventPhotos: { $each: images } } },
+      { new: true }
     )
     res
       .status(200)
@@ -149,9 +151,10 @@ app.post('/uploadeventphotos/:id', async function (req, res) {
   }
 })
 
-app.get('/get', async function (req, res) {
+app.get('/get/:userId', async function (req, res) {
+  const userId = req.params.userId
   try {
-    const events = await eventmodel.find()
+    const events = await eventmodel.find({ userId })
     res.status(200).send(events)
   } catch (error) {
     res.status(400).json({ status: 'failed', message: 'cannot get task' })
@@ -159,7 +162,7 @@ app.get('/get', async function (req, res) {
   }
 })
 
-app.get('/get/:id', async (req, res) => {
+app.get('/getevents/:id', async (req, res) => {
   try {
     const event = await Event.findById(req.params.id)
     res.status(200).send(event)

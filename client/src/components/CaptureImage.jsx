@@ -4,8 +4,11 @@ import Webcam from 'react-webcam'
 import img from '../assets/img/Img-placeholder.png'
 import { v4 } from 'uuid'
 import { storage } from '../../firebase'
+import Loading from '../UI/Loading'
 
 import { ref, getDownloadURL, uploadString } from 'firebase/storage'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const videoConstraints = {
   width: 1280 / 3,
@@ -15,16 +18,27 @@ const videoConstraints = {
 
 const CaptureImage = ({ setImage }) => {
   const webcamRef = useRef(null)
+  const [status, setStatus] = useState('')
+
   const [imgSrc, setImgSrc] = useState(img)
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current.getScreenshot()
-    console.log('Captured Image ', imageSrc)
     setImgSrc(imageSrc)
     handleUpload(imageSrc)
   }, [webcamRef])
 
   const handleUpload = (imageBase64) => {
     console.log('Uploading image', imageBase64)
+    if (!webcamRef.current?.state.hasUserMedia)
+      return toast.error('Please give access to webcam', {
+        position: 'top-right',
+        autoClose: 2000,
+        closeOnClick: true,
+        draggable: true
+      })
+
+    setStatus(<Loading text={`Capturing Image...`} size='10' />)
+
     if (imageBase64 === null) return
     let uploadRef = `checkImg/${v4()}`
     const ImageRef = ref(storage, uploadRef)
@@ -34,6 +48,11 @@ const CaptureImage = ({ setImage }) => {
       getDownloadURL(snapshot.ref).then((url) => {
         console.log('URL ', url)
         setImage(uploadRef)
+
+        setStatus(
+          <Loading text={`Image Captured Successfully`} success size='10' />
+        )
+
         console.log('From capture', uploadRef)
       })
     })
@@ -48,6 +67,7 @@ const CaptureImage = ({ setImage }) => {
           className='rounded-xl'
           screenshotFormat='image/jpeg'
           videoConstraints={videoConstraints}
+          mirrored={true}
         />
         {imgSrc && (
           <img
@@ -63,6 +83,8 @@ const CaptureImage = ({ setImage }) => {
       >
         Capture photo
       </button>
+      <p>{status}</p>
+      <ToastContainer />
     </div>
   )
 }

@@ -18,7 +18,7 @@ const appRouter = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <AllEvents />
+        element: <Login />
       },
       {
         path: '/getmyphotos/:id',
@@ -27,10 +27,6 @@ const appRouter = createBrowserRouter([
       {
         path: '/register',
         element: <Register />
-      },
-      {
-        path: '/login',
-        element: <Login />
       },
       {
         path: '/event/:id',

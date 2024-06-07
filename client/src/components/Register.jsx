@@ -66,51 +66,60 @@ const Register = () => {
       !logoUpload ||
       !bannerUpload
     ) {
-      toast.warning('Please fill all the details!', {
+      return toast.warning('Please fill all the details!', {
         position: 'top-center',
         autoClose: 2000,
         closeOnClick: true,
         draggable: true
       })
+    }
 
-      const logoDB = await handleUploadImage(logoUpload)
-      const bannerDB = await handleUploadImage(bannerUpload)
+    const uploadToastId = toast.loading('Event Registering...', {
+      position: 'top-right',
+      closeOnClick: true,
+      draggable: true
+    })
 
-      console.log(logoDB, bannerDB)
+    const logoDB = await handleUploadImage(logoUpload)
+    const bannerDB = await handleUploadImage(bannerUpload)
+    const userId = sessionStorage.getItem('userId')
 
-      fetch('http://localhost:5000/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          formData,
-          logo: logoDB,
-          banner: bannerDB
+    console.log(logoDB, bannerDB)
+
+    fetch('http://localhost:5000/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        formData,
+        logo: logoDB,
+        banner: bannerDB,
+        userId: userId
+      })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('Success:', data)
+        toast.update(uploadToastId, {
+          render: 'Event Registered successfully!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 2000,
+          draggable: true
+        })
+        setFormData(initialFormState)
+        navigate('/allevent')
+      })
+      .catch((error) => {
+        console.log('Error:', error)
+        toast.error('Error Occurred', {
+          position: 'top-center',
+          autoClose: 2000,
+          closeOnClick: true,
+          draggable: true
         })
       })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log('Success:', data)
-          toast.success('Event Registered Successfully', {
-            position: 'top-center',
-            autoClose: 2000,
-            closeOnClick: true,
-            draggable: true
-          })
-          setFormData(initialFormState)
-          navigate('/')
-        })
-        .catch((error) => {
-          console.log('Error:', error)
-          toast.error('Error Occurred', {
-            position: 'top-center',
-            autoClose: 2000,
-            closeOnClick: true,
-            draggable: true
-          })
-        })
-    }
   }
 
   const formFields = [

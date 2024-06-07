@@ -15,8 +15,9 @@ const GetMyPhotos = () => {
     name: '',
     id: ''
   })
-  const [matchUrl, setMatchUrl] = useState('')
+  const [matchUrl, setMatchUrl] = useState(null)
   const [closeUpdateToast, setCloseUpdateToast] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   // useEffect(() => {
   //   const data =
@@ -29,33 +30,33 @@ const GetMyPhotos = () => {
   const handleVerify = () => {
     console.log('From GetMyPhotos ', image)
     console.log('Handle Verify Called')
+    setLoading(true)
 
-    const msgs = [
-      'Matching in Progress, Please wait...',
-      'Almost there, Please wait a bit longer...',
-      'Just a few more seconds...',
-      'Almost done...'
-    ]
-    let i = 0
+    // const msgs = [
+    //   'Matching in Progress, Please wait...',
+    //   'Almost there, Please wait a bit longer...',
+    //   'Just a few more seconds...',
+    //   'Almost done...'
+    // ]
+    // let i = 0
 
-    const toaster = toast.loading(msgs[i], {
-      position: 'top-right',
-      autoClose: 2000,
-      closeOnClick: true,
-      draggable: true
-    })
+    // const toaster = toast.loading(msgs[i], {
+    //   position: 'top-right',
+    //   autoClose: 2000,
+    //   closeOnClick: true,
+    //   draggable: true
+    // })
 
-    setInterval(() => {
-      i = (i + 1) % msgs.length
-      toast.update(toaster, {
-        render: msgs[i],
-        type: 'info',
-        isLoading: true,
-        draggable: true
-      })
-    }, 5000)
+    // setInterval(() => {
+    //   i = (i + 1) % msgs.length
+    //   toast.update(toaster, {
+    //     render: msgs[i],
+    //     type: 'info',
+    //     isLoading: true,
+    //     draggable: true
+    //   })
+    // }, 5000)
 
-    console.log('comes here')
     fetch(`http://localhost:5000/fetchImages`, {
       method: 'POST',
       headers: {
@@ -75,14 +76,14 @@ const GetMyPhotos = () => {
         clearInterval()
         console.log('Data', imgData)
         getImageUrls(imgData)
-        toast.update(toaster, {
-          render: 'Images Found!',
-          type: 'success',
-          isLoading: false,
-          autoClose: 2000,
-          closeOnClick: true,
-          draggable: true
-        })
+        // toast.update(toaster, {
+        //   render: 'Images Found!',
+        //   type: 'success',
+        //   isLoading: false,
+        //   autoClose: 2000,
+        //   closeOnClick: true,
+        //   draggable: true
+        // })
       })
       .catch((error) => {
         console.error('There was a problem with the fetch operation:', error)
@@ -96,12 +97,12 @@ const GetMyPhotos = () => {
   }
 
   function getImageUrls(imgNames) {
-    fetch(`http://localhost:5000/get/${id}`)
+    fetch(`http://localhost:5000/getevents/${id}`)
       .then((res) => res.json())
       .then((data) => {
         let matchingUrls = []
 
-        console.log('EventPhotos ', data.eventPhotos)
+        console.log('EventPhotos ', data)
         for (let img in imgNames) {
           for (let i = 0; i < data.eventPhotos.length; i++) {
             console.log('Image ', imgNames[img])
@@ -130,11 +131,23 @@ const GetMyPhotos = () => {
         setFormData={setFormData}
       />
 
-      <button className='btn  mt-8' onClick={handleVerify}>
+      <button className='btn m-8' onClick={handleVerify}>
         Find My Photos
       </button>
       <ToastContainer />
-      <Images download array={matchUrl} />
+      {matchUrl ? (
+        <Images download array={matchUrl} />
+      ) : (
+        loading && (
+          <div className='flex flex-col gap-6 items-center justify-center h-screen'>
+            <div className='relative'>
+              <div className='h-24 w-24 rounded-full border-t-8 border-b-8 border-dark-200'></div>
+              <div className='absolute top-0 left-0 h-24 w-24 rounded-full border-t-8 border-b-8 border-[#fedb4b] animate-spin'></div>
+            </div>
+            <p>Matching</p>
+          </div>
+        )
+      )}
     </div>
   )
 }

@@ -23,8 +23,7 @@ const Images = (props) => {
         {list.map((item, i) => {
           return (
             <div key={i} className='flex-center gap-1 flex-col'>
-              <Image url={item} styles='h-72  rounded-xl' />
-              <p>{item}</p>
+              <Image url={item} styles='h-72  rounded-xl ' />
               {props.download && (
                 <button className='btn' onClick={() => handleDownload(item)}>
                   Download

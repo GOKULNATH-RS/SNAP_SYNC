@@ -62,6 +62,7 @@ const UserRegister = () => {
           draggable: true
         })
         sessionStorage.setItem('userId', result.userId)
+        console.log('Session user Id ')
         navigate('/register')
       }
     } catch (error) {
