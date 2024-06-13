@@ -147,11 +147,11 @@ const EventPage = () => {
 
   return (
     <div>
-      <div className='w-full h-64 relative '>
+      <div className='w-full h-64 relative overflow-hidden'>
         <img
           src={eventData.eventBanner}
           alt='Banner'
-          className='w-full h-full bg-cover '
+          className='w-full bg-bottom '
         />
         <img
           src={eventData.eventLogo}
